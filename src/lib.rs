@@ -1,12 +1,14 @@
 #![no_std]
 #![cfg_attr(test, no_main)]
 #![feature(custom_test_frameworks)]
+#![feature(abi_x86_interrupt)]
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-pub mod vga_buffer;
-pub mod serial;
+pub mod gdt;
 pub mod interrupts;
+pub mod serial;
+pub mod vga_buffer;
 
 use core::panic::PanicInfo;
 
@@ -26,13 +28,21 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
     }
 }
 
+pub fn init() {
+    gdt::init();
+    interrupts::init_idt();
+
+    unsafe { interrupts::PICS.lock().initialize() };
+
+    x86_64::instructions::interrupts::enable();
+}
+
 /*
     Decorator pattern for test logging.
 */
 pub trait Testable {
     fn run(&self) -> ();
 }
-
 
 impl<T> Testable for T
 where
@@ -63,6 +73,7 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
 #[cfg(test)]
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
+    init();
     test_main();
     loop {}
 }

@@ -9,14 +9,19 @@
 use core::panic::PanicInfo;
 use jarvis::println;
 
-
 #[no_mangle] // 防止函数名重整
 pub extern "C" fn _start() -> ! {
     println!("Hello World{}", "!");
 
+    jarvis::init();
+
+    // invoke a breakpoint exception
+    // x86_64::instructions::interrupts::int3();
+
     #[cfg(test)]
     test_main();
 
+    println!("It did not crash!");
     loop {}
 }
 
