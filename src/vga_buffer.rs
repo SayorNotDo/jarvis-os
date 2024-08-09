@@ -1,5 +1,5 @@
 use core::{
-    fmt,
+    fmt::{self},
     ops::{Deref, DerefMut},
 };
 use volatile::Volatile;
@@ -207,4 +207,14 @@ fn test_println_output() {
             assert_eq!(char::from(screen_char.ascii_character), c);
         }
     });
+}
+
+#[test_case]
+fn test_println_output_unlock() {
+    let s = "Some test string that fits on a single line";
+    println!("{}", s);
+    for (i, c) in s.chars().enumerate() {
+        let screen_char = WRITER.lock().buffer.chars[BUFFER_HEIGHT - 2][i].read();
+        assert_eq!(char::from(screen_char.ascii_character), c);
+    }
 }
