@@ -7,10 +7,13 @@
 #![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
-use jarvis::println;
+use bootloader::{BootInfo, entry_point};
+use jarvis::{hlt_loop, init, println};
 
-#[no_mangle] // 防止函数名重整
-pub extern "C" fn _start() -> ! {
+// macro define the entry point like extern "C" fn _start()
+entry_point!(kernel_main);
+
+fn kernel_main(boot_info: &'static BootInfo) -> ! {
     println!("Hello World{}", "!");
 
     jarvis::init();
@@ -50,6 +53,13 @@ pub extern "C" fn _start() -> ! {
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
     jarvis::hlt_loop();
+}
+
+#[cfg(test)]
+fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
+    init();
+    test_main();
+    hlt_loop();
 }
 
 #[cfg(test)]
