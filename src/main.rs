@@ -37,6 +37,16 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
             for (i, entry) in l3_table.iter().enumerate() {
                 if !entry.is_unused() {
                     println!("L3 Entry: {}: {:?}", i, entry);
+
+                    let phys = entry.frame().unwrap().start_address();
+                    let virt = phys.as_u64() + boot_info.physical_memory_offset;
+                    let ptr = VirtAddr::new(virt).as_mut_ptr();
+                    let l2_table: &PageTable = unsafe { &*ptr };
+                    for (i, entry) in l2_table.iter().enumerate() {
+                        if !entry.is_unused() {
+                            println!("L2 Entry: {}: {:?}", i, entry);
+                        }
+                    }
                 }
             }
         }
