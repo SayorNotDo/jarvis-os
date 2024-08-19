@@ -7,14 +7,9 @@
 #![reexport_test_harness_main = "test_main"]
 
 extern crate alloc;
-use alloc::{boxed::Box, rc::Rc, vec, vec::Vec};
 use bootloader::{entry_point, BootInfo};
-use core::{iter::Take, panic::PanicInfo};
-use jarvis::{
-    memory::BootInfoFrameAllocator,
-    println,
-    task::{simple_executor::SimpleExecutor, Task},
-};
+use core::panic::PanicInfo;
+use jarvis::{memory::BootInfoFrameAllocator, println};
 
 // macro define the entry point like extern "C" fn _start()
 entry_point!(kernel_main);
@@ -35,6 +30,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     // initialize mapper
     let mut mapper = unsafe { memory::init(phys_mem_offset) };
 
+    // 初始化页帧分配器
     let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
 
     allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
@@ -68,9 +64,11 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     //     Rc::strong_count(&cloned_reference)
     // );
     //
-    let mut executor = SimpleExecutor::new();
-    executor.spawn(Task::new(example_task()));
-    executor.run();
+    // let mut executor = SimpleExecutor::new();
+    // let mut executor = Executor::new();
+    // executor.spawn(Task::new(example_task()));
+    // executor.spawn(Task::new(keyboard::print_keypresses()));
+    // executor.run();
     /************** Test Code End **************/
 
     #[cfg(test)]
@@ -80,14 +78,16 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     jarvis::hlt_loop();
 }
 
-async fn async_number() -> u32 {
-    42
-}
+/************** Test Code Start **************/
+// async fn async_number() -> u32 {
+//     42
+// }
 
-async fn example_task() {
-    let number = async_number().await;
-    println!("async number: {}", number);
-}
+// async fn example_task() {
+//     let number = async_number().await;
+//     println!("async number: {}", number);
+// }
+/************** Test Code End **************/
 
 #[cfg(not(test))]
 #[panic_handler]

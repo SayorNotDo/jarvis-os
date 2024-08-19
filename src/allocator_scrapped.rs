@@ -2,8 +2,6 @@ pub mod bump;
 pub mod fixed_size_block;
 pub mod linked_list;
 
-use alloc::alloc::{GlobalAlloc, Layout};
-use core::ptr::null_mut;
 use fixed_size_block::FixedSizeBlockAllocator;
 use x86_64::{
     structures::paging::{

@@ -89,6 +89,7 @@ pub fn create_example_mapping(
 
     let map_to_result = unsafe {
         // 非安全测试用例
+        // map_to使用frame_allocator分配未使用的页帧
         mapper.map_to(page, frame, flags, frame_allocator)
     };
 
