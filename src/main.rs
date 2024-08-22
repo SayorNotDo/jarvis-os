@@ -8,18 +8,32 @@
 
 extern crate alloc;
 use bootloader::{entry_point, BootInfo};
-use core::panic::PanicInfo;
-use jarvis::{memory::BootInfoFrameAllocator, println};
+use core::{
+    panic::PanicInfo,
+    sync::atomic::{AtomicU32, Ordering},
+};
+use jarvis::println;
 
 // macro define the entry point like extern "C" fn _start()
 entry_point!(kernel_main);
 
+// 定义静态变量，表示可用于调用工作的CPU数量
+static CPU_COUNT: AtomicU32 = AtomicU32::new(0);
+
+// 当前活跃CPU的数量
+#[inline(always)]
+fn cpu_count() -> u32 {
+    CPU_COUNT.load(Ordering::Relaxed)
+}
+
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
-    use jarvis::allocator;
-    use jarvis::memory;
+    CPU_COUNT.store(cpu_count(), Ordering::SeqCst);
+    // use jarvis::allocator;
+    // use jarvis::memory;
 
     // 导入Translate特性以使用提供的translate_addr方法而非自定义
     use x86_64::VirtAddr;
+    println!("Core: {}", cpu_count());
 
     println!("Hello World{}", "!");
 
@@ -28,12 +42,12 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
 
     // initialize mapper
-    let mut mapper = unsafe { memory::init(phys_mem_offset) };
+    // let mut mapper = unsafe { memory::init(phys_mem_offset) };
 
     // 初始化页帧分配器
-    let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
+    // let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
 
-    allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
+    // allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
 
     /************** Test Code End **************/
     // let page = Page::containing_address(VirtAddr::new(0xdeadbeaf000));

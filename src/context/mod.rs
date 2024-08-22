@@ -1,4 +1,9 @@
+/*
+    上下文切换（context switch）
+*/
+
 pub mod context;
+pub mod memory;
 pub mod process;
 pub mod switch;
 
@@ -10,7 +15,7 @@ use self::process::Process;
 
 use self::context::Context;
 
-use crate::cpu::PercpuBlock;
+// use crate::cpu::PercpuBlock;
 
 static KMAIN_PROCESS: Once<Arc<RwLock<Process>>> = Once::new();
 
@@ -55,4 +60,4 @@ pub fn contexts_mut() -> RwLockWriteGuard<'static, BTreeSet<ContextRef>> {
     CONTEXTS.write()
 }
 
-pub fn current() -> Arc<RwSpinlock<Context>> {}
+// pub fn current() -> Arc<RwSpinlock<Context>> {}

@@ -1,4 +1,8 @@
 pub mod logical;
+use core::cell::RefCell;
+
+use alloc::sync::Arc;
+
 use self::logical::LogicalCpuId;
 use crate::context::switch::ContextSwitchPercpu;
 
@@ -9,6 +13,7 @@ pub struct PercpuBlock {
 
     // 上下文管理
     pub switch_internals: ContextSwitchPercpu,
+    pub current_addrsp: RefCell<Option<Arc<AddrSpaceWrapper>>>,
 }
 
 impl PercpuBlock {

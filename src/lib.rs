@@ -8,11 +8,15 @@
 
 extern crate alloc;
 pub mod allocator;
+
+#[macro_use]
+/// 共享数据结构
+pub mod common;
 pub mod context;
-pub mod cpu;
+// pub mod cpu;
 pub mod gdt;
 pub mod interrupts;
-pub mod memory;
+// pub mod memory;
 pub mod serial;
 pub mod task;
 pub mod vga_buffer;
@@ -35,6 +39,9 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
 }
 
 pub fn init() {
+    // 上下文初始化
+    context::init();
+
     gdt::init();
     interrupts::init_idt();
 

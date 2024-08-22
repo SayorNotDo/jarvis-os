@@ -1,8 +1,19 @@
+use core::fmt::Error;
+
 use bootloader::bootinfo::{MemoryMap, MemoryRegionType};
 use x86_64::{
     structures::paging::{FrameAllocator, OffsetPageTable, PageTable, PhysFrame, Size4KiB},
     PhysAddr, VirtAddr,
 };
+
+#[derive(Debug)]
+pub struct Enomem;
+
+impl From<Enomem> for Error {
+    fn from(_: Enomem) -> Self {
+        Self::new(ENOMEM)
+    }
+}
 
 /*
     结构体属性 `repr(transparent)` 确保结构体在内存中表示与它唯一的字段类型完全相同
